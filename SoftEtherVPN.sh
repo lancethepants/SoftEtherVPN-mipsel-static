@@ -43,9 +43,9 @@ make install DESTDIR=$BASE
 ########### #################################################################
 
 mkdir -p $SRC/openssl && cd $SRC/openssl
-$WGET http://www.openssl.org/source/openssl-1.0.1h.tar.gz
-tar zxvf openssl-1.0.1h.tar.gz
-cd openssl-1.0.1h
+$WGET http://www.openssl.org/source/openssl-1.0.1j.tar.gz
+tar zxvf openssl-1.0.1j.tar.gz
+cd openssl-1.0.1j
 
 cat << "EOF" > openssl.patch
 --- Configure_orig      2013-11-19 11:32:38.755265691 -0700
@@ -151,8 +151,8 @@ $MAKE
 
 cd ../SoftEtherVPN
 
-$WGET https://raw.github.com/el1n/OpenWRT-package-softether/master/patches/100-fix-ccldflags-common.patch
-$WGET https://raw.github.com/el1n/OpenWRT-package-softether/master/patches/120-fix-iconv-headers-common.patch
+$WGET https://raw.githubusercontent.com/el1n/OpenWRT-package-softether/master/softethervpn/patches/100-fix-ccldflags-common.patch
+$WGET https://raw.githubusercontent.com/el1n/OpenWRT-package-softether/4cb1cd9073a76edf34c512e587069626e02e2404/patches/120-fix-iconv-headers-common.patch
 patch -p1 < 100-fix-ccldflags-common.patch
 patch -p1 < 120-fix-iconv-headers-common.patch
 
