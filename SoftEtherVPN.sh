@@ -11,7 +11,7 @@ WGET="wget --prefer-family=IPv4"
 RPATH=/opt/lib
 DEST=$BASE/opt
 LDFLAGS="-L$DEST/lib -Wl,--gc-sections"
-CPPFLAGS="-I$DEST/include -I$DEST/include/ncursesw"
+CPPFLAGS="-I$DEST/include"
 CFLAGS="-mtune=mips32 -mips32 -O3 -ffunction-sections -fdata-sections"
 CXXFLAGS=$CFLAGS
 CONFIGURE="./configure --prefix=/opt --host=mipsel-linux"
@@ -30,6 +30,7 @@ cd zlib-1.2.8
 LDFLAGS=$LDFLAGS \
 CPPFLAGS=$CPPFLAGS \
 CFLAGS=$CFLAGS \
+CXXFLAGS=$CXXFLAGS \
 CROSS_PREFIX=mipsel-linux- \
 ./configure \
 --prefix=/opt \
@@ -43,9 +44,9 @@ make install DESTDIR=$BASE
 ########### #################################################################
 
 mkdir -p $SRC/openssl && cd $SRC/openssl
-$WGET https://www.openssl.org/source/openssl-1.0.2a.tar.gz
-tar zxvf openssl-1.0.2a.tar.gz
-cd openssl-1.0.2a
+$WGET https://www.openssl.org/source/openssl-1.0.2d.tar.gz
+tar zxvf openssl-1.0.2d.tar.gz
+cd openssl-1.0.2d
 
 ./Configure linux-mips32 \
 -mtune=mips32 -mips32 -ffunction-sections -fdata-sections -Wl,--gc-sections \
@@ -61,17 +62,20 @@ make CC=mipsel-linux-gcc install INSTALLTOP=$DEST OPENSSLDIR=$DEST/ssl
 ########### #################################################################
 
 mkdir $SRC/curses && cd $SRC/curses
-$WGET http://ftp.gnu.org/pub/gnu/ncurses/ncurses-5.9.tar.gz
-tar zxvf ncurses-5.9.tar.gz
-cd ncurses-5.9
+$WGET http://ftp.gnu.org/gnu/ncurses/ncurses-6.0.tar.gz
+tar zxvf ncurses-6.0.tar.gz
+cd ncurses-6.0
 
 LDFLAGS=$LDFLAGS \
 CPPFLAGS=$CPPFLAGS \
 CFLAGS=$CFLAGS \
+CXXFLAGS=$CXXFLAGS \
 $CONFIGURE \
 --enable-widec \
+--enable-overwrite \
+--with-normal \
 --with-shared \
---disable-database \
+--enable-rpath \
 --with-fallbacks=xterm
 
 $MAKE
@@ -82,9 +86,9 @@ make install DESTDIR=$BASE
 ############### #############################################################
 
 mkdir $SRC/libreadline && cd $SRC/libreadline
-$WGET ftp://ftp.cwru.edu/pub/bash/readline-6.2.tar.gz
-tar zxvf readline-6.2.tar.gz
-cd readline-6.2
+$WGET ftp://ftp.cwru.edu/pub/bash/readline-6.3.tar.gz
+tar zxvf readline-6.3.tar.gz
+cd readline-6.3
 
 $WGET https://raw.githubusercontent.com/lancethepants/tomatoware/master/patches/readline/readline.patch
 patch < readline.patch
@@ -92,8 +96,11 @@ patch < readline.patch
 LDFLAGS=$LDFLAGS \
 CPPFLAGS=$CPPFLAGS \
 CFLAGS=$CFLAGS \
+CXXFLAGS=$CXXFLAGS \
 $CONFIGURE \
---disable-shared
+--disable-shared \
+bash_cv_wcwidth_broken=no \
+bash_cv_func_sigsetjmp=yes
 
 $MAKE
 make install DESTDIR=$BASE
@@ -110,6 +117,7 @@ cd libiconv-1.14
 LDFLAGS=$LDFLAGS \
 CPPFLAGS=$CPPFLAGS \
 CFLAGS=$CFLAGS \
+CXXFLAGS=$CXXFLAGS \
 $CONFIGURE \
 --enable-static \
 --disable-shared
