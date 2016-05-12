@@ -1,4 +1,4 @@
- #!/bin/bash
+#!/bin/bash
 
 set -e
 set -x
@@ -8,7 +8,6 @@ mkdir ~/softether && cd ~/softether
 BASE=`pwd`
 SRC=$BASE/src
 WGET="wget --prefer-family=IPv4"
-RPATH=/opt/lib
 DEST=$BASE/opt
 LDFLAGS="-L$DEST/lib -Wl,--gc-sections"
 CPPFLAGS="-I$DEST/include"
@@ -16,6 +15,7 @@ CFLAGS="-mtune=mips32 -mips32 -O3 -ffunction-sections -fdata-sections"
 CXXFLAGS=$CFLAGS
 CONFIGURE="./configure --prefix=/opt --host=mipsel-linux"
 MAKE="make -j`nproc`"
+
 mkdir $SRC
 
 ######## ####################################################################
@@ -44,13 +44,13 @@ make install DESTDIR=$BASE
 ########### #################################################################
 
 mkdir -p $SRC/openssl && cd $SRC/openssl
-$WGET https://www.openssl.org/source/openssl-1.0.2d.tar.gz
-tar zxvf openssl-1.0.2d.tar.gz
-cd openssl-1.0.2d
+$WGET https://www.openssl.org/source/openssl-1.0.2h.tar.gz
+tar zxvf openssl-1.0.2h.tar.gz
+cd openssl-1.0.2h
 
 ./Configure linux-mips32 \
 -mtune=mips32 -mips32 -ffunction-sections -fdata-sections -Wl,--gc-sections \
---prefix=/opts zlib \
+--prefix=/opt zlib \
 --with-zlib-lib=$DEST/lib \
 --with-zlib-include=$DEST/include
 
@@ -67,7 +67,7 @@ tar zxvf ncurses-6.0.tar.gz
 cd ncurses-6.0
 
 LDFLAGS=$LDFLAGS \
-CPPFLAGS=$CPPFLAGS \
+CPPFLAGS="-P $CPPFLAGS" \
 CFLAGS=$CFLAGS \
 CXXFLAGS=$CXXFLAGS \
 $CONFIGURE \
@@ -86,7 +86,7 @@ make install DESTDIR=$BASE
 ############### #############################################################
 
 mkdir $SRC/libreadline && cd $SRC/libreadline
-$WGET ftp://ftp.cwru.edu/pub/bash/readline-6.3.tar.gz
+$WGET http://ftp.gnu.org/gnu/readline/readline-6.3.tar.gz
 tar zxvf readline-6.3.tar.gz
 cd readline-6.3
 
@@ -131,6 +131,11 @@ make install DESTDIR=$BASE
 
 mkdir $SRC/softether && cd $SRC/softether
 git clone https://github.com/SoftEtherVPN/SoftEtherVPN.git
+
+cd SoftEtherVPN
+git checkout c0c1b914db8d27fa2f60fb88ee45b032b881aa28
+cd ..
+
 cp -r SoftEtherVPN SoftEtherVPN_host
 cd SoftEtherVPN_host
 
@@ -144,10 +149,10 @@ $MAKE
 
 cd ../SoftEtherVPN
 
-$WGET https://raw.githubusercontent.com/el1n/OpenWRT-package-softether/master/softethervpn/patches/100-fix-ccldflags-common.patch
-$WGET https://raw.githubusercontent.com/el1n/OpenWRT-package-softether/4cb1cd9073a76edf34c512e587069626e02e2404/patches/120-fix-iconv-headers-common.patch
-patch -p1 < 100-fix-ccldflags-common.patch
-patch -p1 < 120-fix-iconv-headers-common.patch
+$WGET https://raw.githubusercontent.com/el1n/OpenWRT-package-softether/master/softethervpn/patches/100-ccldflags.patch
+$WGET https://raw.githubusercontent.com/lancethepants/SoftEtherVPN-arm-static/master/patches/iconv.patch
+patch -p1 < 100-ccldflags.patch
+patch -p1 < iconv.patch
 
 cp ./src/makefiles/linux_32bit.mak ./Makefile
 sed -i 's,#CC=gcc,CC=mipsel-linux-gcc,g' Makefile
