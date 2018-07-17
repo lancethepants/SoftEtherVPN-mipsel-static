@@ -44,9 +44,9 @@ make install DESTDIR=$BASE
 ########### #################################################################
 
 mkdir -p $SRC/openssl && cd $SRC/openssl
-$WGET https://www.openssl.org/source/openssl-1.0.2n.tar.gz
-tar zxvf openssl-1.0.2n.tar.gz
-cd openssl-1.0.2n
+$WGET https://www.openssl.org/source/openssl-1.0.2o.tar.gz
+tar zxvf openssl-1.0.2o.tar.gz
+cd openssl-1.0.2o
 
 ./Configure linux-mips32 \
 -mtune=mips32 -mips32 -ffunction-sections -fdata-sections -Wl,--gc-sections \
@@ -62,9 +62,9 @@ make CC=mipsel-linux-gcc install INSTALLTOP=$DEST OPENSSLDIR=$DEST/ssl
 ########### #################################################################
 
 mkdir $SRC/curses && cd $SRC/curses
-$WGET http://ftp.gnu.org/gnu/ncurses/ncurses-6.0.tar.gz
-tar zxvf ncurses-6.0.tar.gz
-cd ncurses-6.0
+$WGET http://ftp.gnu.org/gnu/ncurses/ncurses-6.1.tar.gz
+tar zxvf ncurses-6.1.tar.gz
+cd ncurses-6.1
 
 LDFLAGS=$LDFLAGS \
 CPPFLAGS="-P $CPPFLAGS" \
@@ -76,7 +76,8 @@ $CONFIGURE \
 --with-normal \
 --with-shared \
 --enable-rpath \
---with-fallbacks=xterm
+--with-fallbacks=xterm \
+--without-progs
 
 $MAKE
 make install DESTDIR=$BASE
@@ -130,10 +131,10 @@ make install DESTDIR=$BASE
 ############# ###############################################################
 
 mkdir $SRC/softether && cd $SRC/softether
-git clone https://github.com/SoftEtherVPN/SoftEtherVPN.git
+git clone https://github.com/SoftEtherVPN/SoftEtherVPN_Stable.git
 
-cp -r SoftEtherVPN SoftEtherVPN_host
-cd SoftEtherVPN_host
+cp -r SoftEtherVPN_Stable SoftEtherVPN_Stable_host
+cd SoftEtherVPN_Stable_host
 
 if [ "`uname -m`" == "x86_64" ];then
 	cp ./src/makefiles/linux_64bit.mak ./Makefile
@@ -143,7 +144,7 @@ fi
 
 $MAKE
 
-cd ../SoftEtherVPN
+cd ../SoftEtherVPN_Stable
 
 $WGET https://raw.githubusercontent.com/lancethepants/SoftEtherVPN-arm-static/master/patches/100-ccldflags.patch
 $WGET https://raw.githubusercontent.com/lancethepants/SoftEtherVPN-arm-static/master/patches/iconv.patch
@@ -160,7 +161,7 @@ LDFLAGS="-static $LDFLAGS" \
 $MAKE \
 || true
 
-cp ../SoftEtherVPN_host/tmp/hamcorebuilder ./tmp/
+cp ../SoftEtherVPN_Stable_host/tmp/hamcorebuilder ./tmp/
 
 CCFLAGS="$CPPFLAGS $CFLAGS" \
 LDFLAGS="-static $LDFLAGS" \
